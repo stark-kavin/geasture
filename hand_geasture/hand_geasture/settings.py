@@ -6,7 +6,9 @@ SECRET_KEY = 'django-insecure-6w=-gf#y7bl8mi+v&cmi-r=%(+dbc!y-tif^sd%vx*v(!@a*)1
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "geasture.onrender.com"
+]
 
 
 # Application definition
