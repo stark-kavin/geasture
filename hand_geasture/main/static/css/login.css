@@ -1,0 +1,125 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f7fa;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L39.9 3.414 42.03 0h1.284zM25.544 0l-1.414 1.414 2.83 2.83L28.372 0h-2.83zM15.03 0l-1.414 1.414 2.83 2.83L17.9 0h-2.87zm-9.9 0L3.72 1.414 7.543 5.24 9.372 0H5.13zm36.042 0l-1.414 1.414L43.7 5.242 45.53 0h-4.357zM22.627 0h2.83L22.142 3.314 19.312 0h3.315zm9.9 0h2.828l-3.314 3.314L28.72 0h3.807zm-19.8 0h-4.36L10.815 3.314 7.544 0h5.183zm-9.9 0H.002l1.827 3.325L5.14 0h-2.31z' fill='%23c8e6fb' fill-opacity='0.3' fill-rule='evenodd'/%3E%3C/svg%3E");
+  padding: 20px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-top: 5px solid #0077cc;
+}
+
+.login-title {
+  color: #0077cc;
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 28px;
+}
+
+.hospital-logo {
+  text-align: center;
+  margin-bottom: 15px;
+}
+.hospital-logo img {
+  height: 70px;
+  width: auto;
+}
+
+.hospital-tagline {
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+input:focus {
+  outline: none;
+  border-color: #0077cc;
+  box-shadow: 0 0 0 2px rgba(0, 119, 204, 0.2);
+}
+
+.error-message {
+  background-color: rgba(255, 76, 76, 0.1);
+  border-left: 4px solid #ff4c4c;
+  color: #d32f2f;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 0 4px 4px 0;
+  font-size: 14px;
+}
+
+.submit-btn {
+  width: 100%;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+.submit-btn:hover {
+  background-color: #005999;
+}
+
+.medical-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.help-text {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  margin-top: 10px;
+  color: #0077cc;
+  text-decoration: none;
+}
+.help-text:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 20px;
+  }
+}/*# sourceMappingURL=login.css.map */
