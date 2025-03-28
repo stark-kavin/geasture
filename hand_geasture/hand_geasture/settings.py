@@ -15,6 +15,9 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "geasture.onrender.com"
 ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://geasture.onrender.com"
+]
 
 
 # Application definition
