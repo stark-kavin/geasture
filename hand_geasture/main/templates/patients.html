@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Gesture System - Patients</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/patients.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Add SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="navbar-brand">
+                <img src="https://thumbs.dreamstime.com/b/red-cross-vector-icon-hospital-sign-medical-health-first-aid-symbol-isolated-vhite-modern-gradient-design-141217893.jpg" alt="Hospital Logo" class="navbar-logo">
+                <span class="hospital-name">Hospital Admin</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/patients" class="nav-link active">Patients</a></li>
+                <li><a href="/accounts" class="nav-link">Accounts</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="content">
+        <div class="page-header">
+            <h1 class="page-title">Patients</h1>
+            <button id="addPatientBtn" class="btn-add-patient">
+                <i class="fas fa-plus-circle"></i> Add Patient
+            </button>
+        </div>
+        
+        <div class="patient-cards-container">
+            {% for patient in patients %}
+            <a href="{% url 'patient_detail' patient.id %}" class="patient-card {% if patient.alert %}status-critical{% else %}status-stable{% endif %}">
+                <div class="patient-card-header">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user-injured"></i>
+                    </div>
+                    <span class="status-badge {% if patient.alert %}status-critical{% else %}status-stable{% endif %}">
+                        {% if patient.alert %}Alert{% else %}Normal{% endif %}
+                    </span>
+                </div>
+                <div class="patient-card-body">
+                    <h3 class="patient-name">{{ patient.name }}</h3>
+                    <p class="patient-age"><i class="fas fa-birthday-cake"></i> {{ patient.age }} years</p>
+                    <p class="patient-alert-status">
+                        <i class="{% if patient.alert %}fas fa-exclamation-triangle{% else %}fas fa-check-circle{% endif %}"></i>
+                        Status: {% if patient.alert %}Needs attention{% else %}Stable{% endif %}
+                    </p>
+                </div>
+            </a>
+            {% empty %}
+            <div class="no-results">
+                <i class="fas fa-procedures"></i>
+                <p>No patients found</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('addPatientBtn').addEventListener('click', function() {
+            // Add patient form functionality will go here
+            Swal.fire({
+                title: 'Add New Patient',
+                html: `
+                    <div class="swal-form">
+                        <div class="swal-form-group">
+                            <label for="name">Patient Name</label>
+                            <input id="name" class="swal2-input" placeholder="Full Name">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="age">Age</label>
+                            <input id="age" class="swal2-input" placeholder="Age" type="number">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="password">Password</label>
+                            <input id="password" class="swal2-input" placeholder="Password" type="password">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="alert">Alert Status</label>
+                            <div class="checkbox-container">
+                                <input id="alert" type="checkbox"> 
+                                <label for="alert">Patient needs attention</label>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Add Patient',
+                cancelButtonText: 'Cancel',
+                preConfirm: () => {
+                    return {
+                        name: document.getElementById('name').value,
+                        age: document.getElementById('age').value,
+                        password: document.getElementById('password').value,
+                        alert: document.getElementById('alert').checked
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send data to server
+                    const patientData = result.value;
+                    
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Creating patient...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Send AJAX request to create patient
+                    fetch('/create-patient/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken()
+                        },
+                        body: JSON.stringify(patientData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            
+                            // Add the new patient to the UI
+                            addPatientToUI(data.patient);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to create patient. Please try again.'
+                        });
+                    });
+                }
+            });
+        });
+        
+        // Function to get CSRF token from cookies
+        function getCsrfToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Function to add a new patient card to the UI
+        function addPatientToUI(patient) {
+            const patientsContainer = document.querySelector('.patient-cards-container');
+            const noResults = document.querySelector('.no-results');
+            
+            // If "no results" message is displayed, remove it
+            if (noResults) {
+                noResults.remove();
+            }
+            
+            // Create the new patient card
+            const statusClass = patient.alert ? 'status-critical' : 'status-stable';
+            const statusText = patient.alert ? 'Alert' : 'Normal';
+            const alertIcon = patient.alert ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+            const statusDescription = patient.alert ? 'Needs attention' : 'Stable';
+            
+            const patientCard = document.createElement('a');
+            patientCard.href = `/patient/${patient.id}/`;
+            patientCard.className = `patient-card ${statusClass}`;
+            patientCard.innerHTML = `
+                <div class="patient-card-header">
+                    <div class="patient-avatar">
+                        <i class="fas fa-user-injured"></i>
+                    </div>
+                    <span class="status-badge ${statusClass}">
+                        ${statusText}
+                    </span>
+                </div>
+                <div class="patient-card-body">
+                    <h3 class="patient-name">${patient.name}</h3>
+                    <p class="patient-age"><i class="fas fa-birthday-cake"></i> ${patient.age} years</p>
+                    <p class="patient-alert-status">
+                        <i class="${alertIcon}"></i>
+                        Status: ${statusDescription}
+                    </p>
+                </div>
+            `;
+            
+            // Add the new card to the beginning of the container to highlight it
+            patientsContainer.insertBefore(patientCard, patientsContainer.firstChild);
+        }
+    </script>
+</body>
+</html>
