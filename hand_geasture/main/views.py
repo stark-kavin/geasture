@@ -673,6 +673,7 @@ def get_doctor_data_view(request):
         try:
             user_profile = UserProfiles.objects.get(user=request.user)
             return JsonResponse({
+                "id": request.user.id,
                 "username": request.user.username,
                 "email": request.user.email,
                 "first_name": request.user.first_name,
