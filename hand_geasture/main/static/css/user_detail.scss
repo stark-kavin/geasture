@@ -1,0 +1,645 @@
+// Variables
+$primary-color: #2c7be5;
+$secondary-color: #1e3a8a;
+$background-color: #f9fafb;
+$text-color: #333;
+$border-color: #e5e7eb;
+
+// Role-specific colors
+$doctor-color: #16a34a;
+$doctor-light: #dcfce7;
+$doctor-dark: #166534;
+$doctor-hover: #f0fdf4;
+
+$nurse-color: #2563eb;
+$nurse-light: #dbeafe;
+$nurse-dark: #1e40af;
+$nurse-hover: #eff6ff;
+
+$admin-color: #d97706;
+$admin-light: #fef3c7;
+$admin-dark: #92400e;
+$admin-hover: #fffbeb;
+
+// Reset styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', 'Arial', sans-serif;
+  background-color: $background-color;
+  color: $text-color;
+}
+
+// Navigation styles
+.navbar {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  border-bottom: 1px solid $border-color;
+  
+  .nav-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      
+      .navbar-logo {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+      }
+      
+      .hospital-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $secondary-color;
+        letter-spacing: -0.5px;
+      }
+    }
+    
+    .nav-links {
+      list-style: none;
+      display: flex;
+      height: 100%;
+      
+      li {
+        height: 100%;
+        display: flex;
+        align-items: stretch;
+        
+        .nav-link {
+          display: flex;
+          align-items: center;
+          padding: 0 20px;
+          color: #4b5563;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.95rem;
+          transition: all 0.2s ease;
+          position: relative;
+          
+          &:hover {
+            color: $primary-color;
+          }
+          
+          &.active {
+            color: $primary-color;
+            
+            &:after {
+              content: '';
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              width: 100%;
+              height: 3px;
+              background-color: $primary-color;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.content {
+  width: 90%;
+  max-width: 1000px;
+  margin: 30px auto;
+  
+  .back-link {
+    margin-bottom: 20px;
+    
+    a {
+      display: inline-flex;
+      align-items: center;
+      color: $primary-color;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+      
+      i {
+        margin-right: 8px;
+      }
+      
+      &:hover {
+        color: darken($primary-color, 10%);
+      }
+    }
+  }
+  
+  .user-profile {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    
+    .profile-header {
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      
+      &.role-doctor {
+        background-color: $doctor-light;
+        
+        .profile-avatar {
+          color: $doctor-dark;
+          background-color: white;
+        }
+      }
+      
+      &.role-nurse {
+        background-color: $nurse-light;
+        
+        .profile-avatar {
+          color: $nurse-dark;
+          background-color: white;
+        }
+      }
+      
+      &.role-admin {
+        background-color: $admin-light;
+        
+        .profile-avatar {
+          color: $admin-dark;
+          background-color: white;
+        }
+      }
+      
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: #f3f4f6;
+        margin-right: 25px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        
+        i {
+          font-size: 3.5rem;
+        }
+      }
+      
+      .profile-info {
+        h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 10px;
+          color: $text-color;
+        }
+      }
+    }
+    
+    .profile-details {
+      padding: 30px;
+      
+      .detail-card {
+        background-color: #f9fafb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        
+        h3 {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: $secondary-color;
+          margin-bottom: 15px;
+          display: flex;
+          align-items: center;
+          
+          i {
+            margin-right: 10px;
+            color: $primary-color;
+          }
+        }
+        
+        .detail-row {
+          display: flex;
+          margin-bottom: 12px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid $border-color;
+          
+          &:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+          }
+          
+          .detail-label {
+            width: 140px;
+            font-weight: 600;
+            color: #6b7280;
+          }
+          
+          .detail-value {
+            flex: 1;
+            color: $text-color;
+          }
+          
+          .btn-password-reset {
+            margin-left: auto;
+            color: $primary-color;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            
+            i {
+              margin-right: 6px;
+            }
+            
+            &:hover {
+              background-color: #e6f0ff;
+            }
+          }
+        }
+        
+        .password-last-changed {
+          margin-top: 8px;
+          font-size: 0.85rem;
+          color: #6b7280;
+          text-align: right;
+        }
+      }
+      
+      .linked-patients {
+        margin-top: 10px;
+        
+        .patient-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 15px;
+          border-radius: 6px;
+          background-color: white;
+          margin-bottom: 10px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+          transition: all 0.2s;
+          
+          &:hover {
+            background-color: #f8fafc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+          }
+          
+          .patient-info {
+            flex: 1;
+            
+            .patient-name {
+              display: block;
+              font-weight: 600;
+              color: $text-color;
+              margin-bottom: 3px;
+            }
+            
+            .patient-age {
+              font-size: 0.9rem;
+              color: #6b7280;
+            }
+          }
+          
+          .alert-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 15px;
+            
+            i {
+              margin-right: 5px;
+            }
+          }
+          
+          .patient-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $primary-color;
+            height: 36px;
+            width: 36px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            
+            &:hover {
+              background-color: #e6f0ff;
+            }
+          }
+        }
+      }
+      
+      .no-patients {
+        padding: 15px;
+        text-align: center;
+        color: #6b7280;
+        font-style: italic;
+        background-color: #f9fafb;
+        border-radius: 6px;
+      }
+    }
+    
+    .action-buttons {
+      padding: 20px 30px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      border-top: 1px solid $border-color;
+      
+      .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        
+        i {
+          margin-right: 8px;
+        }
+        
+        &.btn-edit {
+          background-color: $primary-color;
+          color: white;
+          text-decoration: none;
+          
+          &:hover {
+            background-color: darken($primary-color, 5%);
+          }
+        }
+        
+        &.btn-delete {
+          background-color: #fee2e2;
+          color: #dc2626;
+          border: none;
+          
+          &:hover {
+            background-color: #fecaca;
+          }
+        }
+      }
+    }
+  }
+  
+  .role-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    
+    &.role-doctor {
+      background-color: $doctor-color;
+      color: white;
+    }
+    
+    &.role-nurse {
+      background-color: $nurse-color;
+      color: white;
+    }
+    
+    &.role-admin {
+      background-color: $admin-color;
+      color: white;
+    }
+  }
+  
+  .error-message {
+    padding: 50px 20px;
+    text-align: center;
+    
+    i {
+      font-size: 3rem;
+      color: #dc2626;
+      margin-bottom: 15px;
+    }
+    
+    p {
+      font-size: 1.2rem;
+      color: #6b7280;
+    }
+  }
+}
+
+// SweetAlert customizations
+.swal2-popup {
+  font-family: 'Nunito', 'Arial', sans-serif;
+  
+  .swal2-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    width: 80%;
+    
+    &.mt-3 {
+      margin-top: 16px;
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      color: #6b7280;
+    }
+    
+    .swal2-input {
+      padding-left: 35px !important;
+      width: 100%;
+    }
+  }
+  
+  .password-requirements {
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-align: left;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    
+    p {
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    ul {
+      padding-left: 20px;
+    }
+    
+    li {
+      margin-bottom: 3px;
+    }
+  }
+}
+
+// Modal styles
+.modal {
+  display: none; // Keep only this display property
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow-y: auto; // Add scrolling to the overall modal
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 0;
+  
+  &.show {
+    display: flex; // Add display:flex only when the .show class is added
+  }
+  
+  .modal-content {
+    background-color: white;
+    margin: 5vh auto; // Reduce top margin to 5vh instead of 10%
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh; // Limit max height to 90% of viewport height
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid $border-color;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0; // Prevent header from shrinking
+      
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $secondary-color;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        
+        i {
+          margin-right: 10px;
+          color: $primary-color;
+        }
+      }
+      
+      .close-modal {
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        
+        &:hover {
+          color: #dc2626;
+        }
+      }
+    }
+    
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto; // Add scrolling to the modal body
+      max-height: calc(80vh - 80px); // Account for header height and some padding
+      
+      form {
+        .form-group {
+          margin-bottom: 20px;
+          
+          label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: $text-color;
+          }
+          
+          input, select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid $border-color;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            
+            &:focus {
+              border-color: $primary-color;
+              outline: none;
+            }
+            
+            &:disabled {
+              background-color: #f3f4f6;
+              cursor: not-allowed;
+            }
+            
+            option:disabled {
+              color: #9ca3af;
+              font-style: italic;
+            }
+          }
+          
+          .help-text {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 5px;
+          }
+        }
+        
+        .form-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 15px;
+          margin-top: 30px;
+          
+          button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            
+            &.btn-cancel {
+              background-color: #f3f4f6;
+              color: #6b7280;
+              border: none;
+              
+              &:hover {
+                background-color: #e5e7eb;
+              }
+            }
+            
+            &.btn-save {
+              background-color: $primary-color;
+              color: white;
+              border: none;
+              
+              &:hover {
+                background-color: darken($primary-color, 5%);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

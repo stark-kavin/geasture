@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Gesture System</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Add SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="navbar-brand">
+                <img src="https://thumbs.dreamstime.com/b/red-cross-vector-icon-hospital-sign-medical-health-first-aid-symbol-isolated-vhite-modern-gradient-design-141217893.jpg" alt="Hospital Logo" class="navbar-logo">
+                <span class="hospital-name">Hospital Admin</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/patients" class="nav-link">Patients</a></li>
+                <li><a href="/accounts" class="nav-link active">Accounts</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="content">
+        <div class="page-header">
+            <h1 class="page-title">User Accounts</h1>
+            <button id="addAccountBtn" class="btn-add-account">
+                <i class="fas fa-plus-circle"></i> Add Account
+            </button>
+        </div>
+        
+        <div class="user-cards-container">
+            {% for profile in users %}
+            <a href="{% url 'user_detail' profile.id %}" class="user-card role-{{ profile.role }}">
+                <div class="user-card-header">
+                    <div class="user-avatar">
+                        {% if profile.role == 'doctor' %}
+                            <i class="fas fa-user-md"></i>
+                        {% elif profile.role == 'nurse' %}
+                            <i class="fas fa-user-nurse"></i>
+                        {% elif profile.role == 'admin' %}
+                            <i class="fas fa-user-shield"></i>
+                        {% else %}
+                            <i class="fas fa-user-circle"></i>
+                        {% endif %}
+                    </div>
+                    <span class="role-badge role-{{ profile.role }}">{{ profile.get_role_display }}</span>
+                </div>
+                <div class="user-card-body">
+                    <h3 class="user-name">{{ profile.user.first_name }} {{ profile.user.last_name }}</h3>
+                    <p class="user-username">@{{ profile.user.username }}</p>
+                    <p class="user-email"><i class="fas fa-envelope"></i> {{ profile.user.email }}</p>
+                </div>
+            </a>
+            {% empty %}
+            <div class="no-results">
+                <i class="fas fa-user-slash"></i>
+                <p>No users found</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('addAccountBtn').addEventListener('click', function() {
+            Swal.fire({
+                title: 'Add New Account',
+                html: `
+                    <div class="swal-form">
+                        <div class="swal-form-group">
+                            <label for="firstName">First Name</label>
+                            <input id="firstName" class="swal2-input" placeholder="First Name">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="lastName">Last Name</label>
+                            <input id="lastName" class="swal2-input" placeholder="Last Name">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="username">Username</label>
+                            <input id="username" class="swal2-input" placeholder="Username">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="email">Email</label>
+                            <input id="email" class="swal2-input" placeholder="Email" type="email">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="password">Password</label>
+                            <input id="password" class="swal2-input" placeholder="Password" type="password">
+                        </div>
+                        <div class="swal-form-group">
+                            <label for="role">Role</label>
+                            <select id="role" class="swal2-input">
+                                <option value="doctor">Doctor</option>
+                                <option value="nurse">Nurse</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Create Account',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const username = document.getElementById('username').value;
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const role = document.getElementById('role').value;
+                    
+                    if (!firstName || !lastName || !username || !email || !password || !role) {
+                        Swal.showValidationMessage('All fields are required');
+                        return false;
+                    }
+                    
+                    return fetch('/create-account/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            firstName, 
+                            lastName, 
+                            username, 
+                            email, 
+                            password, 
+                            role
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || 'Error creating account');
+                        }
+                        return data;
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error.message}`);
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Account created successfully',
+                        icon: 'success'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            });
+        });
+        
+        // Get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
