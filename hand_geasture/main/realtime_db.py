@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .models import UserProfiles, PatientLink
 
 
-cred_path = os.path.join(os.path.dirname(__file__), "hostpital-geasture-firebase-adminsdk.json")
+cred_path = os.path.join(os.path.dirname(__file__), "/etc/secrets/hostpital-geasture-firebase-adminsdk.json")
 
 if not os.path.exists(cred_path):
     raise FileNotFoundError(f"Firebase credentials file not found: {cred_path}")
