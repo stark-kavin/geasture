@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details - Hospital Gesture System</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/patient_detail.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Add SweetAlert2 CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="navbar-brand">
+                <img src="https://thumbs.dreamstime.com/b/red-cross-vector-icon-hospital-sign-medical-health-first-aid-symbol-isolated-vhite-modern-gradient-design-141217893.jpg" alt="Hospital Logo" class="navbar-logo">
+                <span class="hospital-name">Hospital Admin</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/patients" class="nav-link active">Patients</a></li>
+                <li><a href="/accounts" class="nav-link">Accounts</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="content">
+        <div class="patient-card">
+            <div class="patient-header">
+                <h1 class="patient-name">{{ patient.name }}</h1>
+                <div class="patient-actions">
+                    <a href="/patients/" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Back to All Patients
+                    </a>
+                    <button id="editPatientBtn" class="edit-btn">
+                        <i class="fas fa-edit"></i> Edit Patient
+                    </button>
+                    <button id="deletePatientBtn" class="delete-btn">
+                        <i class="fas fa-trash"></i> Delete Patient
+                    </button>
+                </div>
+            </div>
+            <div class="patient-info">
+                <p><strong>Age:</strong> {{ patient.age }}</p>
+                <p><strong>Status:</strong> 
+                    {% if patient.alert %}
+                    <span class="status-alert">Alert</span>
+                    {% else %}
+                    <span class="status-normal">Normal</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="healthcare-providers">
+                <div class="providers-header">
+                    <h2>Linked Healthcare Providers</h2>
+                    <button id="linkProviderBtn" class="link-btn">
+                        <i class="fas fa-plus"></i> Link Provider
+                    </button>
+                </div>
+                {% if patient_links %}
+                    <div class="providers-list">
+                        {% for link in patient_links %}
+                            <div class="provider-wrapper">
+                                <a href="/user/{{ link.account.id }}/" class="provider-link">
+                                    <div class="provider-card">
+                                        <h3>{{ link.account.user.first_name }} {{ link.account.user.last_name }}</h3>
+                                        <p class="provider-role">{{ link.account.role|title }}</p>
+                                        <p class="provider-username">Username: {{ link.account.user.username }}</p>
+                                        <p class="provider-email">Email: {{ link.account.user.email }}</p>
+                                    </div>
+                                </a>
+                                <button class="unlink-btn" data-link-id="{{ link.id }}">
+                                    <i class="fas fa-unlink"></i> Unlink
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-providers">No healthcare providers are currently linked to this patient.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Link Provider Modal -->
+    <div id="linkProviderModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Link Provider to Patient</h2>
+            <div class="form-group">
+                <label for="providerSelect">Select Provider:</label>
+                <select id="providerSelect" class="form-control">
+                    <!-- Will be populated by JavaScript -->
+                </select>
+            </div>
+            <button id="submitLinkProvider" class="btn-primary">Link Provider</button>
+        </div>
+    </div>
+    
+    <!-- Edit Patient Modal -->
+    <div id="editPatientModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Patient Information</h2>
+            <div class="form-group">
+                <label for="patientName">Name:</label>
+                <input type="text" id="patientName" class="form-control" value="{{ patient.name }}">
+            </div>
+            <div class="form-group">
+                <label for="patientAge">Age:</label>
+                <input type="number" id="patientAge" class="form-control" value="{{ patient.age }}">
+            </div>
+            <div class="form-group">
+                <label for="patientPassword">Password (leave blank to keep current):</label>
+                <input type="password" id="patientPassword" class="form-control" placeholder="New password">
+            </div>
+            <div class="form-group">
+                <label for="patientAlert">Status:</label>
+                <select id="patientAlert" class="form-control">
+                    <option value="false" {% if not patient.alert %}selected{% endif %}>Normal</option>
+                    <option value="true" {% if patient.alert %}selected{% endif %}>Alert</option>
+                </select>
+            </div>
+            <button id="submitEditPatient" class="btn-primary">Update Patient</button>
+        </div>
+    </div>
+    
+    <!-- Include CSRF token in the page -->
+    {% csrf_token %}
+    
+    <script>
+        $(document).ready(function() {
+            // Setup CSRF token for all AJAX requests
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+            const csrftoken = getCookie('csrftoken') || $('input[name=csrfmiddlewaretoken]').val();
+            
+            // Set up AJAX to always send CSRF token
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+            
+            // Edit Patient Button Click
+            $("#editPatientBtn").click(function() {
+                $("#editPatientModal").show();
+            });
+            
+            // Delete Patient Button Click
+            $("#deletePatientBtn").click(function() {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will permanently delete this patient and all their provider links!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/delete-patient/',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                patient_id: "{{ patient.id }}"
+                            }),
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: response.message
+                                }).then(() => {
+                                    window.location.href = '/patients/';
+                                });
+                            },
+                            error: function(error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: error.responseJSON ? error.responseJSON.message : 'Failed to delete patient'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Close Modal (for all modals)
+            $(".close-modal").click(function() {
+                $(".modal").hide();
+            });
+            
+            // Submit Edit Patient
+            $("#submitEditPatient").click(function() {
+                const name = $("#patientName").val();
+                const age = $("#patientAge").val();
+                const password = $("#patientPassword").val();
+                const alert = $("#patientAlert").val() === "true";
+                
+                if (!name || !age) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning',
+                        text: 'Name and age are required'
+                    });
+                    return;
+                }
+                
+                const data = {
+                    patient_id: "{{ patient.id }}",
+                    name: name,
+                    age: age,
+                    alert: alert
+                };
+                
+                // Only include password if it was provided
+                if (password) {
+                    data.password = password;
+                }
+                
+                $.ajax({
+                    url: '/update-patient/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Patient updated successfully'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.responseJSON ? error.responseJSON.message : 'Failed to update patient'
+                        });
+                    }
+                });
+            });
+            
+            // Link Provider Button Click
+            $("#linkProviderBtn").click(function() {
+                // Fetch available providers and populate the dropdown
+                $.ajax({
+                    url: '/get-available-providers/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        patient_id: "{{ patient.id }}"
+                    }),
+                    // No need to set X-CSRFToken header here, it's handled by $.ajaxSetup
+                    success: function(response) {
+                        const select = $("#providerSelect");
+                        select.empty();
+                        
+                        if (response.providers.length === 0) {
+                            select.append('<option value="">No available providers</option>');
+                            $("#submitLinkProvider").prop('disabled', true);
+                        } else {
+                            response.providers.forEach(function(provider) {
+                                select.append(`<option value="${provider.id}">${provider.name} (${provider.role})</option>`);
+                            });
+                            $("#submitLinkProvider").prop('disabled', false);
+                        }
+                        
+                        $("#linkProviderModal").show();
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.responseJSON ? error.responseJSON.message : 'Failed to fetch providers'
+                        });
+                    }
+                });
+            });
+            
+            // Submit Link Provider
+            $("#submitLinkProvider").click(function() {
+                const providerId = $("#providerSelect").val();
+                
+                if (!providerId) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning',
+                        text: 'Please select a provider'
+                    });
+                    return;
+                }
+                
+                $.ajax({
+                    url: '/link-provider/',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        patient_id: "{{ patient.id }}",
+                        provider_id: providerId
+                    }),
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: 'Provider linked successfully'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.responseJSON ? error.responseJSON.message : 'Failed to link provider'
+                        });
+                    }
+                });
+            });
+            
+            // Unlink Provider
+            $(".unlink-btn").click(function() {
+                const linkId = $(this).data('link-id');
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will unlink the provider from this patient.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, unlink!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/unlink-provider/',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                link_id: linkId
+                            }),
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: 'Provider unlinked successfully'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: error.responseJSON ? error.responseJSON.message : 'Failed to unlink provider'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
