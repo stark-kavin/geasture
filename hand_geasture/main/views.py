@@ -651,18 +651,24 @@ def patient_alert_no(request):
 
 # ------------------Doctor------------------
 
-@csrf_exempt 
+@csrf_exempt
 def doctor_login_view(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(username=username, password=password)
+        try:
+            data = json.loads(request.body)
+            username = data.get("username")
+            password = data.get("password")
+            user = authenticate(username=username, password=password)
 
-        if user:
-            login(request, user)
-            return JsonResponse({"message": "Login successful"})
-        else:
-            return JsonResponse({"error": "Invalid credentials"}, status=400)
+            if user:
+                login(request, user)
+                return JsonResponse({"message": "Login successful", "status": "success"})
+            else:
+                return JsonResponse({"error": "Invalid credentials", "status": "error"}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format", "status": "error"}, status=400)
+
+    return JsonResponse({"error": "Only POST method allowed", "status": "error"}, status=405)
 
 
 @csrf_exempt
