@@ -38,4 +38,5 @@ urlpatterns += [
 urlpatterns += [
     path('api/doctor/login/', doctor_login_view),
     path('api/doctor/data/', get_doctor_data_view),
+        path('api/doctor/details', get_all_patients),
 ]
