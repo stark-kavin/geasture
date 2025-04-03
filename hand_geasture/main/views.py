@@ -652,6 +652,22 @@ def patient_alert_no(request):
 # ------------------Doctor------------------
 
 @csrf_exempt
+def get_all_patients(request):
+    if request.method == "GET":
+        patients = Patient.objects.all()
+        patient_data = [
+            {
+                "id": patient.id,
+                "name": patient.name,
+                "age": patient.age,
+                "alert": patient.alert
+            }
+            for patient in patients
+        ]
+        return JsonResponse({"patients": patient_data, "status": "success"})
+    return JsonResponse({"message": "Only GET method allowed", "status": "error"}, status=405)
+
+@csrf_exempt
 def doctor_login_view(request):
     if request.method == "POST":
         try:
